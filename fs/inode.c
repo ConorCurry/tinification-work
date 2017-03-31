@@ -2122,3 +2122,63 @@ struct timespec current_time(struct inode *inode)
 	return timespec_trunc(now, inode->i_sb->s_time_gran);
 }
 EXPORT_SYMBOL(current_time);
+
+/* Caller is here responsible for sufficient locking (ie. inode->i_lock) */
+void __inode_add_bytes(struct inode *inode, loff_t bytes)
+{
+	inode->i_blocks += bytes >> 9;
+	bytes &= 511;
+	inode->i_bytes += bytes;
+	if (inode->i_bytes >= 512) {
+		inode->i_blocks++;
+		inode->i_bytes -= 512;
+	}
+}
+
+void inode_add_bytes(struct inode *inode, loff_t bytes)
+{
+	spin_lock(&inode->i_lock);
+	__inode_add_bytes(inode, bytes);
+	spin_unlock(&inode->i_lock);
+}
+EXPORT_SYMBOL(inode_add_bytes);
+
+void __inode_sub_bytes(struct inode *inode, loff_t bytes)
+{
+	inode->i_blocks -= bytes >> 9;
+	bytes &= 511;
+	if (inode->i_bytes < bytes) {
+		inode->i_blocks--;
+		inode->i_bytes += 512;
+	}
+	inode->i_bytes -= bytes;
+}
+EXPORT_SYMBOL(__inode_sub_bytes);
+
+void inode_sub_bytes(struct inode *inode, loff_t bytes)
+{
+	spin_lock(&inode->i_lock);
+	__inode_sub_bytes(inode, bytes);
+	spin_unlock(&inode->i_lock);
+}
+EXPORT_SYMBOL(inode_sub_bytes);
+
+loff_t inode_get_bytes(struct inode *inode)
+{
+	loff_t ret;
+
+	spin_lock(&inode->i_lock);
+	ret = (((loff_t)inode->i_blocks) << 9) + inode->i_bytes;
+	spin_unlock(&inode->i_lock);
+	return ret;
+}
+EXPORT_SYMBOL(inode_get_bytes);
+
+void inode_set_bytes(struct inode *inode, loff_t bytes)
+{
+	/* Caller is here responsible for sufficient locking
+	 * (ie. inode->i_lock) */
+	inode->i_blocks = bytes >> 9;
+	inode->i_bytes = bytes & 511;
+}
+EXPORT_SYMBOL(inode_set_bytes);
