@@ -94,6 +94,14 @@ config MANDATORY_FILE_LOCKING
 
 	  To the best of my knowledge this is dead code that no one cares about.
 
+config STAT_SYSCALLS 
+	bool "Enable stat family of syscalls" if EXPERT
+	default y
+	help
+	  This option enables stat system calls. There is no reason to disable
+	  this on most systems, and most systems will require it. Disabling this
+	  option will reduce the kernel size.
+
 source "fs/crypto/Kconfig"
 
 source "fs/notify/Kconfig"
