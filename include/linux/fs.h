@@ -2868,7 +2868,6 @@ extern int __page_symlink(struct inode *inode, const char *symname, int len,
 extern int page_symlink(struct inode *inode, const char *symname, int len);
 extern const struct inode_operations page_symlink_inode_operations;
 extern void kfree_link(void *);
-extern void generic_fillattr(struct inode *, struct kstat *);
 int vfs_getattr_nosec(struct path *path, struct kstat *stat);
 extern int vfs_getattr(struct path *, struct kstat *);
 void __inode_add_bytes(struct inode *inode, loff_t bytes);
@@ -2885,6 +2884,22 @@ extern int iterate_dir(struct file *, struct dir_context *);
 
 extern int vfs_stat(const char __user *, struct kstat *);
 extern int vfs_lstat(const char __user *, struct kstat *);
+static inline void generic_fillattr(struct inode *inode, struct kstat *stat)
+{
+	stat->dev = inode->i_sb->s_dev;
+	stat->ino = inode->i_ino;
+	stat->mode = inode->i_mode;
+	stat->nlink = inode->i_nlink;
+	stat->uid = inode->i_uid;
+	stat->gid = inode->i_gid;
+	stat->rdev = inode->i_rdev;
+	stat->size = i_size_read(inode);
+	stat->atime = inode->i_atime;
+	stat->mtime = inode->i_mtime;
+	stat->ctime = inode->i_ctime;
+	stat->blksize = (1 << inode->i_blkbits);
+	stat->blocks = inode->i_blocks;
+}
 extern int vfs_fstat(unsigned int, struct kstat *);
 extern int vfs_fstatat(int , const char __user *, struct kstat *, int);
 extern const char *vfs_get_link(struct dentry *, struct delayed_call *);

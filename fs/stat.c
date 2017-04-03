@@ -17,26 +17,6 @@
 
 #include <linux/uaccess.h>
 #include <asm/unistd.h>
-
-void generic_fillattr(struct inode *inode, struct kstat *stat)
-{
-	stat->dev = inode->i_sb->s_dev;
-	stat->ino = inode->i_ino;
-	stat->mode = inode->i_mode;
-	stat->nlink = inode->i_nlink;
-	stat->uid = inode->i_uid;
-	stat->gid = inode->i_gid;
-	stat->rdev = inode->i_rdev;
-	stat->size = i_size_read(inode);
-	stat->atime = inode->i_atime;
-	stat->mtime = inode->i_mtime;
-	stat->ctime = inode->i_ctime;
-	stat->blksize = (1 << inode->i_blkbits);
-	stat->blocks = inode->i_blocks;
-}
-
-EXPORT_SYMBOL(generic_fillattr);
-
 /**
  * vfs_getattr_nosec - getattr without security checks
  * @path: file to get attributes from
