@@ -2868,8 +2868,6 @@ extern int __page_symlink(struct inode *inode, const char *symname, int len,
 extern int page_symlink(struct inode *inode, const char *symname, int len);
 extern const struct inode_operations page_symlink_inode_operations;
 extern void kfree_link(void *);
-int vfs_getattr_nosec(struct path *path, struct kstat *stat);
-extern int vfs_getattr(struct path *, struct kstat *);
 void __inode_add_bytes(struct inode *inode, loff_t bytes);
 void inode_add_bytes(struct inode *inode, loff_t bytes);
 void __inode_sub_bytes(struct inode *inode, loff_t bytes);
@@ -2882,8 +2880,6 @@ extern const struct inode_operations simple_symlink_inode_operations;
 
 extern int iterate_dir(struct file *, struct dir_context *);
 
-extern int vfs_stat(const char __user *, struct kstat *);
-extern int vfs_lstat(const char __user *, struct kstat *);
 static inline void generic_fillattr(struct inode *inode, struct kstat *stat)
 {
 	stat->dev = inode->i_sb->s_dev;
@@ -2900,8 +2896,41 @@ static inline void generic_fillattr(struct inode *inode, struct kstat *stat)
 	stat->blksize = (1 << inode->i_blkbits);
 	stat->blocks = inode->i_blocks;
 }
+#ifdef CONFIG_STAT_SYSCALLS
+int vfs_getattr_nosec(struct path *path, struct kstat *stat);
+extern int vfs_getattr(struct path *, struct kstat *);
 extern int vfs_fstat(unsigned int, struct kstat *);
 extern int vfs_fstatat(int , const char __user *, struct kstat *, int);
+extern int vfs_stat(const char __user *, struct kstat *);
+extern int vfs_lstat(const char __user *, struct kstat *);
+#else
+static inline int vfs_getattr_nosec(struct path *path, struct kstat *stat)
+{
+	return -EPERM;
+}
+static inline int vfs_getattr(struct path *path, struct kstat *stat)
+{
+	return -EPERM;
+}
+static inline int vfs_fstat(unsigned int fd, struct kstat *stat)
+{
+	return -EPERM;
+}
+static inline int vfs_fstatat(int dfd, const char __user *filename,
+			      struct kstat *stat, int flag)
+{
+	return -EPERM;
+}
+static inline int vfs_stat(const char __user *filename, struct kstat *stat)
+{
+	return -EPERM;
+}
+static inline int vfs_lstat(const char __user *filename, struct kstat *stat)
+{
+	return -EPERM;
+}
+#endif
+
 extern const char *vfs_get_link(struct dentry *, struct delayed_call *);
 extern int vfs_readlink(struct dentry *, char __user *, int);
 
