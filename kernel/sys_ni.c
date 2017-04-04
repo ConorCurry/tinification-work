@@ -178,7 +178,19 @@ cond_syscall(sys_setfsgid);
 cond_syscall(sys_capget);
 cond_syscall(sys_capset);
 cond_syscall(sys_copy_file_range);
-
+cond_syscall(sys_stat);
+cond_syscall(sys_lstat);
+cond_syscall(sys_fstat);
+cond_syscall(sys_newstat);
+cond_syscall(sys_newlstat);
+cond_syscall(sys_newfstatat);
+cond_syscall(sys_newfstat);
+cond_syscall(sys_readlinkat);
+cond_syscall(sys_readlink);
+cond_syscall(sys_stat64);
+cond_syscall(sys_lstat64);
+cond_syscall(sys_fstat64);
+cond_syscall(sys_fstatat64);
 /* arch-specific weak syscall entries */
 cond_syscall(sys_pciconfig_read);
 cond_syscall(sys_pciconfig_write);
