@@ -23,9 +23,9 @@ void fsstack_copy_inode_size(struct inode *dst, struct inode *src)
 	/*
 	 * But if CONFIG_LBDAF (on 32-bit), we ought to make an effort to
 	 * keep the two halves of i_blocks in sync despite SMP or PREEMPT -
-	 * though stat's generic_fillattr() doesn't bother, and we won't be
-	 * applying quotas (where i_blocks does become important) at the
-	 * upper level.
+	 * though stat's generic_fillattr() (see include/linux/fs.h) doesn't
+	 * bother, and we won't be applying quotas (where i_blocks does
+	 * become important) at the upper level.
 	 *
 	 * We don't actually know what locking is used at the lower level;
 	 * but if it's a filesystem that supports quotas, it will be using
